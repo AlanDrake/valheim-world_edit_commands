@@ -1,3 +1,6 @@
+- v1.73
+  - Fixes `spawn_object pos` not being "forward, right, up" relative to the player.
+
 - v1.72
   - Fixes terrain paint operations with Expand World Data mod.
 

@@ -4,6 +4,7 @@ using Data;
 using ServerDevcommands;
 using UnityEngine;
 namespace WorldEditCommands;
+
 class SpawnObjectParameters : SharedObjectParameters
 {
   public Quaternion BaseRotation;
@@ -64,7 +65,7 @@ class SpawnObjectParameters : SharedObjectParameters
       if (name == "pos" || name == "position")
       {
         UseDefaultRelativePosition = false;
-        RelativePosition = Parse.VectorXZYRange(value, Vector3.zero);
+        RelativePosition = Parse.VectorZXYRange(value, Vector3.zero);
         Snap = value.Split(',').Length < 3;
       }
       if (name == "rot" || name == "rotation")
