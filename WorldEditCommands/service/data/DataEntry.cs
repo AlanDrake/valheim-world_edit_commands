@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ServerDevcommands;
+using Service;
 using UnityEngine;
 using WorldEditCommands;
 
@@ -580,7 +581,7 @@ public class DataEntry
       if (Enum.TryParse<T>(trimmed, true, out var parsed))
         value += (byte)(object)parsed;
       else
-        ServerDevcommands.ServerDevcommands.Log.LogWarning($"Failed to parse value {trimmed} as {nameof(T)}.");
+        Log.Warning($"Failed to parse value {trimmed} as {nameof(T)}.");
     }
     return (T)(object)value;
   }

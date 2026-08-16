@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BepInEx;
 using ServerDevcommands;
+using Service;
 namespace Data;
 
 public class DataLoading
@@ -36,49 +37,47 @@ public class DataLoading
     Data.Clear();
     DataKeys.Clear();
     ValueGroups.Clear();
-    var files = Directory.GetFiles(GamePath, "*.yaml").Concat(Directory.GetFiles(ProfilePath, "*.yaml")).
-      Select(Path.GetFullPath).Distinct().ToArray();
-    foreach (var file in files)
-    {
-      var yaml = Yaml.LoadList<DataData>(file);
-      foreach (var data in yaml)
-      {
-        if (data.value != null)
-        {
-          var kvp = Parse.Kvp(data.value);
-          var hash = kvp.Key.ToLowerInvariant().GetStableHashCode();
-          if (ValueGroups.ContainsKey(hash))
-            ServerDevcommands.ServerDevcommands.Log.LogWarning($"Duplicate value group entry: {kvp.Key} at {file}");
-          if (!ValueGroups.ContainsKey(hash))
-            ValueGroups[hash] = [];
-          ValueGroups[hash].Add(kvp.Value);
-        }
-        if (data.valueGroup != null && data.values != null)
-        {
-          var hash = data.valueGroup.ToLowerInvariant().GetStableHashCode();
-          if (ValueGroups.ContainsKey(hash))
-            ServerDevcommands.ServerDevcommands.Log.LogWarning($"Duplicate value group entry: {data.valueGroup} at {file}");
-          if (!ValueGroups.ContainsKey(hash))
-            ValueGroups[hash] = [];
-          foreach (var value in data.values)
-            ValueGroups[hash].Add(value);
-        }
-        if (data.name != null)
-        {
-          var hash = data.name.GetStableHashCode();
-          if (Data.ContainsKey(hash))
-            ServerDevcommands.ServerDevcommands.Log.LogWarning($"Duplicate data entry: {data.name} at {file}");
-          DataKeys.Add(data.name);
-          Data[hash] = new DataEntry(data);
-        }
-      }
-    }
-    ServerDevcommands.ServerDevcommands.Log.LogInfo($"Loaded {Data.Count} data entries.");
-    if (ValueGroups.Count > 0)
-      ServerDevcommands.ServerDevcommands.Log.LogInfo($"Loaded {ValueGroups.Count} value groups.");
-    LoadDefaultValueGroups();
+    Yaml.LoadListsFromDirectory<DataData>(GamePath, "*.yaml", LoadEntry);
+    Yaml.LoadListsFromDirectory<DataData>(ProfilePath, "*.yaml", LoadEntry);
 
+    Log.Info($"Loaded {Data.Count} data entries.");
+    if (ValueGroups.Count > 0)
+      Log.Info($"Loaded {ValueGroups.Count} value groups.");
+    LoadDefaultValueGroups();
   }
+
+  private static void LoadEntry(string file, DataData data)
+  {
+    if (data.value != null)
+    {
+      var kvp = Parse.Kvp(data.value);
+      var hash = kvp.Key.ToLowerInvariant().GetStableHashCode();
+      if (ValueGroups.ContainsKey(hash))
+        Log.Warning($"Duplicate value group entry: {kvp.Key} at {file}");
+      if (!ValueGroups.ContainsKey(hash))
+        ValueGroups[hash] = [];
+      ValueGroups[hash].Add(kvp.Value);
+    }
+    if (data.valueGroup != null && data.values != null)
+    {
+      var hash = data.valueGroup.ToLowerInvariant().GetStableHashCode();
+      if (ValueGroups.ContainsKey(hash))
+        Log.Warning($"Duplicate value group entry: {data.valueGroup} at {file}");
+      if (!ValueGroups.ContainsKey(hash))
+        ValueGroups[hash] = [];
+      foreach (var value in data.values)
+        ValueGroups[hash].Add(value);
+    }
+    if (data.name != null)
+    {
+      var hash = data.name.GetStableHashCode();
+      if (Data.ContainsKey(hash))
+        Log.Warning($"Duplicate data entry: {data.name} at {file}");
+      DataKeys.Add(data.name);
+      Data[hash] = new DataEntry(data);
+    }
+  }
+
   public static void Save(PlainDataEntry data, string name, bool profile, bool dump)
   {
     var path = Path.Combine(profile ? ProfilePath : GamePath, "data.yaml");
