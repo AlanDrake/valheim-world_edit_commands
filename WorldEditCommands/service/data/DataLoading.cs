@@ -38,7 +38,8 @@ public class DataLoading
     DataKeys.Clear();
     ValueGroups.Clear();
     Yaml.LoadListsFromDirectory<DataData>(GamePath, "*.yaml", LoadEntry);
-    Yaml.LoadListsFromDirectory<DataData>(ProfilePath, "*.yaml", LoadEntry);
+    if (ProfilePath != GamePath)
+      Yaml.LoadListsFromDirectory<DataData>(ProfilePath, "*.yaml", LoadEntry);
 
     Log.Info($"Loaded {Data.Count} data entries.");
     if (ValueGroups.Count > 0)

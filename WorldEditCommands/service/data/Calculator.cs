@@ -39,7 +39,7 @@ public class Calculator
     }
     var minus = expression.Split('-');
     // Negative numbers get split as well, so check for actual parts.
-    if (minus.Where(s => s != "").Count() > 1)
+    if (minus.Count(s => s != "") > 1)
     {
       double? sum = null;
       for (var i = 0; i < minus.Length; ++i)

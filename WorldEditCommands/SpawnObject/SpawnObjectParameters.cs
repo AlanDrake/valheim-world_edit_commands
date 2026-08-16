@@ -65,8 +65,10 @@ class SpawnObjectParameters : SharedObjectParameters
       if (name == "pos" || name == "position")
       {
         UseDefaultRelativePosition = false;
+        var values = value.Split(',');
         RelativePosition = Parse.VectorZXYRange(value, Vector3.zero);
-        Snap = value.Split(',').Length < 3;
+        if (values.Length >= 3)
+          Snap = false;
       }
       if (name == "rot" || name == "rotation")
       {
@@ -75,7 +77,10 @@ class SpawnObjectParameters : SharedObjectParameters
       if (name == "from" || name == "refpos")
       {
         UseDefaultRelativePosition = false;
-        From = Parse.VectorXZY(value.Split(','), From);
+        var values = value.Split(',');
+        From = Parse.VectorXZY(values, From);
+        if (values.Length >= 3)
+          Snap = false;
       }
       if (name == "to")
       {
@@ -84,7 +89,7 @@ class SpawnObjectParameters : SharedObjectParameters
       }
       if (name == "data")
       {
-        Data = DataHelper.Merge(Parse.Split(value).Select(DataHelper.Get).ToArray());
+        Data = DataHelper.Merge([.. Parse.Split(value).Select(DataHelper.Get)]);
       }
       if (name == "refplayer")
       {

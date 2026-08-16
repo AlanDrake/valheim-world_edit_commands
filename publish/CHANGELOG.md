@@ -1,4 +1,5 @@
 - v1.74
+  - Fixes `from` parameter not turning off snapping even when y coordinate is specified.
   - Internal changes to match Server Devcommands code.
 
 - v1.73
